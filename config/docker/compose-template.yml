@@ -1,0 +1,88 @@
+# Docker Compose Template for AI Development Projects
+# This file serves as a starting point for containerized development
+
+version: '3.8'
+
+services:
+  # Development container with common tools
+  dev:
+    image: ubuntu:22.04
+    container_name: ${COMPOSE_PROJECT_NAME:-ai-dev}-main
+    working_dir: /workspace
+    volumes:
+      # Mount your project directory
+      - ${PROJECT_DIR:-./project}:/workspace
+      # Share SSH keys for git operations
+      - ~/.ssh:/home/developer/.ssh:ro
+      # Share git config
+      - ~/.gitconfig:/home/developer/.gitconfig:ro
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    stdin_open: true
+    tty: true
+    networks:
+      - dev-network
+    # Keep container running
+    command: tail -f /dev/null
+
+  # PostgreSQL database for projects that need it
+  postgres:
+    image: postgres:15-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-ai-dev}-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-developer}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-devdb}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - dev-network
+    profiles:
+      - database
+
+  # Redis for caching/queues
+  redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-ai-dev}-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - dev-network
+    profiles:
+      - cache
+
+  # MinIO for S3-compatible storage
+  minio:
+    image: minio/minio:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-ai-dev}-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
+    volumes:
+      - minio-data:/data
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    networks:
+      - dev-network
+    profiles:
+      - storage
+
+networks:
+  dev-network:
+    driver: bridge
+    name: ${COMPOSE_PROJECT_NAME:-ai-dev}-network
+
+volumes:
+  postgres-data:
+    name: ${COMPOSE_PROJECT_NAME:-ai-dev}-postgres-data
+  redis-data:
+    name: ${COMPOSE_PROJECT_NAME:-ai-dev}-redis-data
+  minio-data:
+    name: ${COMPOSE_PROJECT_NAME:-ai-dev}-minio-data

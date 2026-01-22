@@ -1,0 +1,94 @@
+# SSH Configuration Template
+# Copy to ~/.ssh/config and modify as needed
+
+# ────────────────────────────────────
+# GitHub
+# ────────────────────────────────────
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+    AddKeysToAgent yes
+
+# GitHub with different key (for work/personal separation)
+# Host github-work
+#     HostName github.com
+#     User git
+#     IdentityFile ~/.ssh/id_ed25519_work
+#     IdentitiesOnly yes
+
+# ────────────────────────────────────
+# GitLab
+# ────────────────────────────────────
+# Host gitlab.com
+#     HostName gitlab.com
+#     User git
+#     IdentityFile ~/.ssh/id_ed25519
+#     IdentitiesOnly yes
+#     AddKeysToAgent yes
+
+# ────────────────────────────────────
+# Bitbucket
+# ────────────────────────────────────
+# Host bitbucket.org
+#     HostName bitbucket.org
+#     User git
+#     IdentityFile ~/.ssh/id_ed25519
+#     IdentitiesOnly yes
+#     AddKeysToAgent yes
+
+# ────────────────────────────────────
+# Self-hosted Git servers
+# ────────────────────────────────────
+# Host my-git-server
+#     HostName git.example.com
+#     User git
+#     Port 22
+#     IdentityFile ~/.ssh/id_ed25519
+#     IdentitiesOnly yes
+
+# ────────────────────────────────────
+# Development servers
+# ────────────────────────────────────
+# Host dev-server
+#     HostName 192.168.1.100
+#     User developer
+#     Port 22
+#     IdentityFile ~/.ssh/id_ed25519
+#     ForwardAgent yes
+
+# ────────────────────────────────────
+# Jump/Bastion host example
+# ────────────────────────────────────
+# Host bastion
+#     HostName bastion.example.com
+#     User admin
+#     IdentityFile ~/.ssh/id_ed25519
+#
+# Host internal-server
+#     HostName 10.0.0.50
+#     User developer
+#     ProxyJump bastion
+
+# ────────────────────────────────────
+# Default settings for all hosts
+# ────────────────────────────────────
+Host *
+    # Keep connections alive
+    ServerAliveInterval 60
+    ServerAliveCountMax 3
+
+    # Connection sharing for faster subsequent connections
+    ControlMaster auto
+    ControlPath ~/.ssh/sockets/%r@%h-%p
+    ControlPersist 600
+
+    # Security settings
+    HashKnownHosts yes
+    PasswordAuthentication no
+    PubkeyAuthentication yes
+
+    # Prefer ED25519, fall back to RSA
+    IdentityFile ~/.ssh/id_ed25519
+    IdentityFile ~/.ssh/id_rsa
