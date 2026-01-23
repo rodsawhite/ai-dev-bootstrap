@@ -150,6 +150,7 @@ fi
 print_status "Setting up AI agents configuration..."
 
 mkdir -p ~/.config/claude
+mkdir -p ~/.config/gemini
 mkdir -p ~/.config/aider
 mkdir -p ~/.continue
 
@@ -161,6 +162,10 @@ if [[ ! -f ~/.config/ai-agents/env ]]; then
 
 # Anthropic API Key (for Claude Code)
 # export ANTHROPIC_API_KEY="your-key-here"
+
+# Google Gemini API Key (for Gemini CLI)
+# export GEMINI_API_KEY="your-key-here"
+# export GOOGLE_API_KEY="your-key-here"  # Alternative
 
 # OpenAI API Key (for Aider with GPT models)
 # export OPENAI_API_KEY="your-key-here"

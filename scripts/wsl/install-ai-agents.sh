@@ -69,6 +69,34 @@ EOF
 fi
 
 # ============================================================
+# Gemini CLI (Google)
+# ============================================================
+print_status "Installing Gemini CLI..."
+
+if command -v node &> /dev/null; then
+    if command -v gemini &> /dev/null; then
+        print_success "Gemini CLI already installed: $(gemini --version 2>/dev/null || echo 'installed')"
+    else
+        npm install -g @anthropic-ai/gemini-cli 2>/dev/null || \
+        npm install -g gemini-cli 2>/dev/null || {
+            print_warning "Gemini CLI installation failed via npm"
+            print_status "You can try installing later with: npm install -g @google/gemini-cli"
+        }
+
+        if command -v gemini &> /dev/null; then
+            print_success "Gemini CLI installed"
+        fi
+    fi
+else
+    print_warning "Node.js not available, skipping Gemini CLI"
+    print_status "After installing Node.js, run: npm install -g @google/gemini-cli"
+fi
+
+# Create Gemini config directory
+mkdir -p ~/.config/gemini
+chmod 700 ~/.config/gemini
+
+# ============================================================
 # GitHub Copilot CLI
 # ============================================================
 print_status "Installing GitHub Copilot CLI..."
@@ -244,6 +272,10 @@ cat > ~/.bashrc.d/20-ai-agents.sh << 'EOF'
 alias cc='claude'
 alias claude-chat='claude'
 
+# Gemini CLI aliases
+alias gg='gemini'
+alias gemini-chat='gemini'
+
 # GitHub Copilot aliases
 alias copilot='gh copilot'
 alias suggest='gh copilot suggest'
@@ -253,18 +285,21 @@ alias explain='gh copilot explain'
 alias ai='aider'
 alias aider-gpt4='aider --model gpt-4'
 alias aider-claude='aider --model claude-3-opus-20240229'
+alias aider-gemini='aider --model gemini/gemini-1.5-pro-latest'
 
 # Quick AI help
 ai-help() {
     echo "Available AI Coding Agents:"
     echo ""
     echo "  claude / cc       - Claude Code (Anthropic)"
+    echo "  gemini / gg       - Gemini CLI (Google)"
     echo "  gh copilot        - GitHub Copilot CLI"
     echo "  aider / ai        - Aider (multi-model)"
     echo "  ollama            - Local LLM runner"
     echo ""
     echo "Common commands:"
     echo "  claude            - Start Claude Code session"
+    echo "  gemini            - Start Gemini CLI session"
     echo "  suggest <task>    - Get Copilot command suggestion"
     echo "  explain <cmd>     - Explain a command with Copilot"
     echo "  aider <files>     - Start Aider with files"
@@ -288,6 +323,7 @@ echo "  ~/.config/ai-agents/env"
 echo ""
 echo "Required keys:"
 echo "  ANTHROPIC_API_KEY  - For Claude Code"
+echo "  GEMINI_API_KEY     - For Gemini CLI (or GOOGLE_API_KEY)"
 echo "  OPENAI_API_KEY     - For Aider with GPT models"
 echo ""
 echo "GitHub Copilot uses your gh CLI authentication."
@@ -300,6 +336,7 @@ print_success "AI Coding Agents installation complete!"
 echo ""
 echo "Installed agents:"
 command -v claude &> /dev/null && echo "  ✓ Claude Code" || echo "  ○ Claude Code (needs Node.js)"
+command -v gemini &> /dev/null && echo "  ✓ Gemini CLI" || echo "  ○ Gemini CLI (needs Node.js)"
 gh extension list 2>/dev/null | grep -q "copilot" && echo "  ✓ GitHub Copilot CLI" || echo "  ○ GitHub Copilot CLI (needs gh auth)"
 command -v aider &> /dev/null && echo "  ✓ Aider" || echo "  ○ Aider (needs Python)"
 command -v ollama &> /dev/null && echo "  ✓ Ollama" || echo "  ○ Ollama (optional)"

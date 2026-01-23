@@ -4,7 +4,7 @@ Bootstrap a Windows system for AI-assisted development using WSL2, Ubuntu, Docke
 
 ## Features
 
-- **Multi-agent support**: Claude Code, GitHub Copilot CLI, Aider, and Ollama
+- **Multi-agent support**: Claude Code, Gemini CLI, GitHub Copilot CLI, Aider, and Ollama
 - **VS Code**: With WSL integration and AI extensions pre-configured
 - **Modern CLI tools**: ripgrep, fd, fzf, bat, eza
 - **Language runtimes**: Node.js (nvm), Python (pyenv), Rust (rustup), Go
@@ -109,6 +109,7 @@ Bootstrap a Windows system for AI-assisted development using WSL2, Ubuntu, Docke
 
 #### AI Coding Agents
 - **Claude Code** - Anthropic's CLI coding assistant
+- **Gemini CLI** - Google's CLI coding assistant
 - **GitHub Copilot CLI** - Command suggestions and explanations
 - **Aider** - AI pair programming in terminal
 - **Ollama** - Local LLM runner (optional)
@@ -126,6 +127,7 @@ After installation, your WSL environment will have:
 │   ├── ai-agents/
 │   │   └── env         # API keys (edit this!)
 │   ├── claude/         # Claude Code config
+│   ├── gemini/         # Gemini CLI config
 │   └── aider/          # Aider config
 ├── .bashrc.d/          # Modular bash config
 │   ├── 00-path.sh
@@ -145,6 +147,9 @@ Edit `~/.config/ai-agents/env` to add your API keys:
 ```bash
 # Anthropic API Key (for Claude Code)
 export ANTHROPIC_API_KEY="sk-ant-..."
+
+# Google Gemini API Key (for Gemini CLI)
+export GEMINI_API_KEY="your-gemini-key..."
 
 # OpenAI API Key (for Aider with GPT models)
 export OPENAI_API_KEY="sk-..."
@@ -178,6 +183,10 @@ git config --global user.name "Your Name"
 claude                  # Start interactive session
 cc                      # Alias for claude
 
+# Gemini CLI
+gemini                  # Start interactive session
+gg                      # Alias for gemini
+
 # GitHub Copilot
 gh copilot suggest "create a python script to process CSV"
 gh copilot explain "git rebase -i HEAD~5"
@@ -187,6 +196,7 @@ suggest "deploy docker container"  # Alias
 aider                   # Start with current directory
 aider main.py utils.py  # Work on specific files
 aider-sonnet           # Use Claude Sonnet
+aider-gemini           # Use Gemini Pro
 aider-gpt4             # Use GPT-4
 
 # Ollama (local models)

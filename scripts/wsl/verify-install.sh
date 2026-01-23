@@ -244,6 +244,13 @@ else
     check_warn "Claude Code: not installed (npm i -g @anthropic-ai/claude-code)"
 fi
 
+# Gemini CLI
+if command -v gemini &> /dev/null; then
+    check_pass "Gemini CLI: installed"
+else
+    check_warn "Gemini CLI: not installed (npm i -g @google/gemini-cli)"
+fi
+
 # GitHub Copilot CLI
 if gh extension list 2>/dev/null | grep -q "copilot"; then
     check_pass "GitHub Copilot CLI: installed"

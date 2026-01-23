@@ -8,6 +8,12 @@ alias cc='claude'
 alias claude-chat='claude'
 
 # ────────────────────────────────────
+# Gemini CLI (Google)
+# ────────────────────────────────────
+alias gg='gemini'
+alias gemini-chat='gemini'
+
+# ────────────────────────────────────
 # GitHub Copilot CLI
 # ────────────────────────────────────
 alias copilot='gh copilot'
@@ -31,6 +37,7 @@ alias ai='aider'
 alias aider-gpt4='aider --model gpt-4'
 alias aider-claude='aider --model claude-3-opus-20240229'
 alias aider-sonnet='aider --model claude-sonnet-4-20250514'
+alias aider-gemini='aider --model gemini/gemini-1.5-pro-latest'
 
 # ────────────────────────────────────
 # Ollama (Local LLM)
@@ -64,6 +71,19 @@ ai-status() {
         fi
     else
         echo "○ Claude Code: not installed"
+    fi
+    echo ""
+
+    # Gemini CLI
+    if command -v gemini &> /dev/null; then
+        echo "✓ Gemini CLI: installed"
+        if [[ -n "$GEMINI_API_KEY" ]] || [[ -n "$GOOGLE_API_KEY" ]]; then
+            echo "  API Key: configured"
+        else
+            echo "  API Key: NOT SET"
+        fi
+    else
+        echo "○ Gemini CLI: not installed"
     fi
     echo ""
 
@@ -117,6 +137,9 @@ ai-help() {
     echo "  Claude Code:"
     echo "    claude / cc     Start Claude Code session"
     echo ""
+    echo "  Gemini CLI:"
+    echo "    gemini / gg     Start Gemini CLI session"
+    echo ""
     echo "  GitHub Copilot:"
     echo "    suggest <task>  Get command suggestion"
     echo "    explain <cmd>   Explain a command"
@@ -126,6 +149,7 @@ ai-help() {
     echo "    aider / ai      Start Aider session"
     echo "    aider <files>   Start with specific files"
     echo "    aider-sonnet    Use Claude Sonnet model"
+    echo "    aider-gemini    Use Gemini Pro model"
     echo "    aider-gpt4      Use GPT-4 model"
     echo ""
     echo "  Ollama:"
