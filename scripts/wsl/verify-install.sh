@@ -258,6 +258,13 @@ else
     check_warn "Gemini CLI: not installed (npm i -g @google/gemini-cli)"
 fi
 
+# OpenCode
+if command -v opencode &> /dev/null; then
+    check_pass "OpenCode: installed"
+else
+    check_warn "OpenCode: not installed (npm i -g opencode-ai)"
+fi
+
 # GitHub Copilot CLI
 if gh extension list 2>/dev/null | grep -q "copilot"; then
     check_pass "GitHub Copilot CLI: installed"

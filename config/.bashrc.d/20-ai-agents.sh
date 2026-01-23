@@ -14,6 +14,12 @@ alias gg='gemini'
 alias gemini-chat='gemini'
 
 # ────────────────────────────────────
+# OpenCode (Open source)
+# ────────────────────────────────────
+alias oc='opencode'
+alias opencode-chat='opencode'
+
+# ────────────────────────────────────
 # GitHub Copilot CLI
 # ────────────────────────────────────
 alias copilot='gh copilot'
@@ -87,6 +93,19 @@ ai-status() {
     fi
     echo ""
 
+    # OpenCode
+    if command -v opencode &> /dev/null; then
+        echo "✓ OpenCode: installed"
+        if [[ -n "$OPENAI_API_KEY" ]]; then
+            echo "  API Key: configured (or use /connect for OpenCode Zen)"
+        else
+            echo "  API Key: NOT SET (use /connect for OpenCode Zen)"
+        fi
+    else
+        echo "○ OpenCode: not installed"
+    fi
+    echo ""
+
     # GitHub Copilot
     if gh extension list 2>/dev/null | grep -q "copilot"; then
         echo "✓ GitHub Copilot CLI: installed"
@@ -139,6 +158,9 @@ ai-help() {
     echo ""
     echo "  Gemini CLI:"
     echo "    gemini / gg     Start Gemini CLI session"
+    echo ""
+    echo "  OpenCode:"
+    echo "    opencode / oc   Start OpenCode session"
     echo ""
     echo "  GitHub Copilot:"
     echo "    suggest <task>  Get command suggestion"

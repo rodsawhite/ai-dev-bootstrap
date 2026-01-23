@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a bootstrap repository for setting up Windows systems for AI-assisted development. It installs WSL2, Ubuntu, Docker Desktop, VS Code, and multiple AI coding agents (Claude Code, Gemini CLI, GitHub Copilot CLI, Aider, Ollama).
+This is a bootstrap repository for setting up Windows systems for AI-assisted development. It installs WSL2, Ubuntu, Docker Desktop, VS Code, and multiple AI coding agents (Claude Code, Gemini CLI, OpenCode, GitHub Copilot CLI, Aider, Ollama).
 
 ## Commands
 
@@ -41,7 +41,7 @@ The bootstrap operates in two phases:
 2. `install-github.sh` - Installs gh CLI, generates SSH keys, configures git
 3. `install-docker.sh` - Installs Docker CLI (connects to Docker Desktop)
 4. `install-dev-tools.sh` - Installs nvm/Node.js, pyenv/Python, rustup/Rust, Go, CLI tools
-5. `install-ai-agents.sh` - Installs Claude Code, Gemini CLI, Copilot CLI, Aider, Ollama
+5. `install-ai-agents.sh` - Installs Claude Code, Gemini CLI, OpenCode, Copilot CLI, Aider, Ollama
 6. `verify-install.sh` - Validates installation status
 
 ### Configuration Files

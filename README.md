@@ -4,7 +4,7 @@ Bootstrap a Windows system for AI-assisted development using WSL2, Ubuntu, Docke
 
 ## Features
 
-- **Multi-agent support**: Claude Code, Gemini CLI, GitHub Copilot CLI, Aider, and Ollama
+- **Multi-agent support**: Claude Code, Gemini CLI, OpenCode, GitHub Copilot CLI, Aider, and Ollama
 - **VS Code**: With WSL integration and AI extensions pre-configured
 - **Modern CLI tools**: ripgrep, fd, fzf, bat, eza
 - **Language runtimes**: Node.js (nvm), Python (pyenv), Rust (rustup), Go
@@ -110,6 +110,7 @@ Bootstrap a Windows system for AI-assisted development using WSL2, Ubuntu, Docke
 #### AI Coding Agents
 - **Claude Code** - Anthropic's CLI coding assistant
 - **Gemini CLI** - Google's CLI coding assistant
+- **OpenCode** - Open source AI coding agent
 - **GitHub Copilot CLI** - Command suggestions and explanations
 - **Aider** - AI pair programming in terminal
 - **Ollama** - Local LLM runner (optional)
@@ -128,6 +129,7 @@ After installation, your WSL environment will have:
 │   │   └── env         # API keys (edit this!)
 │   ├── claude/         # Claude Code config
 │   ├── gemini/         # Gemini CLI config
+│   ├── opencode/       # OpenCode config
 │   └── aider/          # Aider config
 ├── .bashrc.d/          # Modular bash config
 │   ├── 00-path.sh
@@ -186,6 +188,10 @@ cc                      # Alias for claude
 # Gemini CLI
 gemini                  # Start interactive session
 gg                      # Alias for gemini
+
+# OpenCode
+opencode                # Start interactive session
+oc                      # Alias for opencode
 
 # GitHub Copilot
 gh copilot suggest "create a python script to process CSV"
@@ -326,6 +332,8 @@ This will show:
 ### Remove AI Agents
 ```bash
 npm uninstall -g @anthropic-ai/claude-code
+npm uninstall -g @google/gemini-cli
+npm uninstall -g opencode-ai
 gh extension remove github/gh-copilot
 pip uninstall aider-chat
 ```

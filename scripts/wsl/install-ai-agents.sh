@@ -96,6 +96,34 @@ mkdir -p ~/.config/gemini
 chmod 700 ~/.config/gemini
 
 # ============================================================
+# OpenCode (Open source AI coding agent)
+# ============================================================
+print_status "Installing OpenCode..."
+
+if command -v node &> /dev/null; then
+    if command -v opencode &> /dev/null; then
+        print_success "OpenCode already installed: $(opencode --version 2>/dev/null || echo 'installed')"
+    else
+        npm install -g opencode-ai 2>/dev/null || {
+            print_warning "OpenCode installation failed via npm"
+            print_status "You can try installing later with: npm install -g opencode-ai"
+            print_status "Or via curl: curl -fsSL https://opencode.ai/install | bash"
+        }
+
+        if command -v opencode &> /dev/null; then
+            print_success "OpenCode installed"
+        fi
+    fi
+else
+    print_warning "Node.js not available, skipping OpenCode"
+    print_status "After installing Node.js, run: npm install -g opencode-ai"
+fi
+
+# Create OpenCode config directory
+mkdir -p ~/.config/opencode
+chmod 700 ~/.config/opencode
+
+# ============================================================
 # GitHub Copilot CLI
 # ============================================================
 print_status "Installing GitHub Copilot CLI..."
@@ -275,6 +303,10 @@ alias claude-chat='claude'
 alias gg='gemini'
 alias gemini-chat='gemini'
 
+# OpenCode aliases
+alias oc='opencode'
+alias opencode-chat='opencode'
+
 # GitHub Copilot aliases
 alias copilot='gh copilot'
 alias suggest='gh copilot suggest'
@@ -292,6 +324,7 @@ ai-help() {
     echo ""
     echo "  claude / cc       - Claude Code (Anthropic)"
     echo "  gemini / gg       - Gemini CLI (Google)"
+    echo "  opencode / oc     - OpenCode (Open source)"
     echo "  gh copilot        - GitHub Copilot CLI"
     echo "  aider / ai        - Aider (multi-model)"
     echo "  ollama            - Local LLM runner"
@@ -299,12 +332,14 @@ ai-help() {
     echo "Common commands:"
     echo "  claude            - Start Claude Code session"
     echo "  gemini            - Start Gemini CLI session"
+    echo "  opencode          - Start OpenCode session"
     echo "  suggest <task>    - Get Copilot command suggestion"
     echo "  explain <cmd>     - Explain a command with Copilot"
     echo "  aider <files>     - Start Aider with files"
     echo ""
     echo "API Keys:"
     echo "  Edit ~/.config/ai-agents/env to set API keys"
+    echo "  Or run /connect in OpenCode to use OpenCode Zen"
     echo ""
 }
 EOF
@@ -323,9 +358,10 @@ echo ""
 echo "Required keys:"
 echo "  ANTHROPIC_API_KEY  - For Claude Code"
 echo "  GEMINI_API_KEY     - For Gemini CLI (or GOOGLE_API_KEY)"
-echo "  OPENAI_API_KEY     - For Aider with GPT models"
+echo "  OPENAI_API_KEY     - For Aider with GPT models, OpenCode"
 echo ""
 echo "GitHub Copilot uses your gh CLI authentication."
+echo "OpenCode can use /connect command in TUI for OpenCode Zen auth."
 echo ""
 
 # ============================================================
@@ -336,6 +372,7 @@ echo ""
 echo "Installed agents:"
 command -v claude &> /dev/null && echo "  ✓ Claude Code" || echo "  ○ Claude Code (needs Node.js)"
 command -v gemini &> /dev/null && echo "  ✓ Gemini CLI" || echo "  ○ Gemini CLI (needs Node.js)"
+command -v opencode &> /dev/null && echo "  ✓ OpenCode" || echo "  ○ OpenCode (needs Node.js)"
 gh extension list 2>/dev/null | grep -q "copilot" && echo "  ✓ GitHub Copilot CLI" || echo "  ○ GitHub Copilot CLI (needs gh auth)"
 command -v aider &> /dev/null && echo "  ✓ Aider" || echo "  ○ Aider (needs Python)"
 command -v ollama &> /dev/null && echo "  ✓ Ollama" || echo "  ○ Ollama (optional)"
