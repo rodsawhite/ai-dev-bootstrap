@@ -27,12 +27,13 @@ services:
     command: tail -f /dev/null
 
   # PostgreSQL database for projects that need it
+  # IMPORTANT: Set POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB in your .env file
   postgres:
     image: postgres:15-alpine
     container_name: ${COMPOSE_PROJECT_NAME:-ai-dev}-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-developer}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
       POSTGRES_DB: ${POSTGRES_DB:-devdb}
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -57,13 +58,14 @@ services:
       - cache
 
   # MinIO for S3-compatible storage
+  # IMPORTANT: Set MINIO_USER and MINIO_PASSWORD in your .env file
   minio:
     image: minio/minio:latest
     container_name: ${COMPOSE_PROJECT_NAME:-ai-dev}-minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
+      MINIO_ROOT_USER: ${MINIO_USER:?MINIO_USER must be set in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:?MINIO_PASSWORD must be set in .env}
     volumes:
       - minio-data:/data
     ports:

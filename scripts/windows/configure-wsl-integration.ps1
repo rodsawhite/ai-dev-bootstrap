@@ -31,7 +31,7 @@ memory=${wslMemory}GB
 swap=${wslSwap}GB
 processors=$wslProcessors
 
-# Reclaim unused memory
+# Reclaim unused memory (gradual is less aggressive than dropcache)
 autoMemoryReclaim=gradual
 
 # Enable nested virtualization (useful for Docker)
@@ -39,10 +39,6 @@ nestedVirtualization=true
 
 # Limit disk size growth
 sparseVhd=true
-
-[experimental]
-# Automatic disk space reclaim
-autoMemoryReclaim=dropcache
 "@
 
 if (Test-Path $wslConfigPath) {

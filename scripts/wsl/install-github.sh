@@ -207,8 +207,8 @@ git config --global init.defaultBranch main 2>/dev/null || true
 # Set pull strategy
 git config --global pull.rebase false 2>/dev/null || true
 
-# Enable credential helper
-git config --global credential.helper store 2>/dev/null || true
+# Enable credential helper (use cache with timeout instead of plain-text store)
+git config --global credential.helper 'cache --timeout=7200' 2>/dev/null || true
 
 # Check if user info is configured
 if [[ -z "$(git config --global user.email 2>/dev/null)" ]]; then

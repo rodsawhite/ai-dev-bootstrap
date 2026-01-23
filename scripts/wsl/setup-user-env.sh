@@ -30,9 +30,11 @@ mkdir -p ~/tools
 mkdir -p ~/.config/ai-agents
 mkdir -p ~/.local/bin
 mkdir -p ~/.ssh
+mkdir -p ~/.ssh/sockets
 
 # Set proper permissions
 chmod 700 ~/.ssh
+chmod 700 ~/.ssh/sockets
 chmod 700 ~/.config/ai-agents
 
 print_success "Created directories: ~/projects, ~/tools, ~/.config/ai-agents, ~/.local/bin"

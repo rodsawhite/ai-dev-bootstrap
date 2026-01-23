@@ -77,8 +77,7 @@ if command -v node &> /dev/null; then
     if command -v gemini &> /dev/null; then
         print_success "Gemini CLI already installed: $(gemini --version 2>/dev/null || echo 'installed')"
     else
-        npm install -g @anthropic-ai/gemini-cli 2>/dev/null || \
-        npm install -g gemini-cli 2>/dev/null || {
+        npm install -g @google/gemini-cli 2>/dev/null || {
             print_warning "Gemini CLI installation failed via npm"
             print_status "You can try installing later with: npm install -g @google/gemini-cli"
         }
