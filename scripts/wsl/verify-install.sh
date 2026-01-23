@@ -41,13 +41,13 @@ check_fail() {
     ((FAILED++))
 }
 
-# Source environment
+# Source environment (silently - tools may not be installed yet)
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$HOME/.local/bin:$PATH"
-eval "$(pyenv init -)" 2>/dev/null || true
-source "$HOME/.cargo/env" 2>/dev/null || true
+command -v pyenv &>/dev/null && eval "$(pyenv init -)" 2>/dev/null
+[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env" 2>/dev/null
 export PATH="$PATH:/usr/local/go/bin"
 
 # ============================================================
@@ -172,7 +172,12 @@ echo "────────────────────────�
 
 # Docker CLI
 if command -v docker &> /dev/null; then
-    check_pass "Docker CLI: $(docker --version | cut -d' ' -f3 | tr -d ',')"
+    DOCKER_VER=$(docker --version 2>/dev/null | grep -oP 'Docker version \K[0-9.]+' | head -1)
+    if [[ -n "$DOCKER_VER" ]]; then
+        check_pass "Docker CLI: $DOCKER_VER"
+    else
+        check_pass "Docker CLI: installed"
+    fi
 
     # Docker connectivity
     if docker ps &>/dev/null; then
@@ -185,10 +190,12 @@ else
 fi
 
 # Docker Compose
-if docker compose version &>/dev/null; then
-    check_pass "Docker Compose: $(docker compose version | cut -d' ' -f4)"
+COMPOSE_VER=$(docker compose version 2>/dev/null | grep -oP 'v[0-9.]+' | head -1)
+if [[ -n "$COMPOSE_VER" ]]; then
+    check_pass "Docker Compose: $COMPOSE_VER"
 elif command -v docker-compose &> /dev/null; then
-    check_pass "docker-compose: $(docker-compose --version | cut -d' ' -f4)"
+    COMPOSE_VER=$(docker-compose --version 2>/dev/null | grep -oP '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+    check_pass "docker-compose: ${COMPOSE_VER:-installed}"
 else
     check_warn "Docker Compose not installed"
 fi
