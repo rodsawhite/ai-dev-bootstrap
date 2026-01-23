@@ -62,3 +62,25 @@ The bootstrap operates in two phases:
 - PowerShell scripts use: `Write-Status`, `Write-Success`, `Write-Warning`, `Write-Error`
 - Scripts source environment setup silently to avoid errors when tools aren't installed yet
 - Version detection uses grep/cut patterns that handle edge cases (WSL integration messages, etc.)
+
+## Code Review Workflow
+
+**After completing any code changes**, invoke the `pr-code-reviewer` agent before presenting the work as ready for commit. This ensures:
+
+- Code quality and consistency with project conventions
+- Proper commenting where logic isn't self-evident
+- README accuracy if user-facing behavior changed
+- No security vulnerabilities introduced
+
+**When to trigger review:**
+- After implementing new features or scripts
+- After refactoring existing code
+- After fixing bugs that required code changes
+- Before suggesting the user run `git commit`
+
+**Do not trigger review for:**
+- Documentation-only changes (markdown files)
+- Config file tweaks with no logic changes
+- Exploratory/research tasks with no code written
+
+This review step is mandatory before any commit suggestion.
