@@ -5,6 +5,7 @@ Bootstrap a Windows system for AI-assisted development using WSL2, Ubuntu, Docke
 ## Features
 
 - **Multi-agent support**: Claude Code, GitHub Copilot CLI, Aider, and Ollama
+- **VS Code**: With WSL integration and AI extensions pre-configured
 - **Modern CLI tools**: ripgrep, fd, fzf, bat, eza
 - **Language runtimes**: Node.js (nvm), Python (pyenv), Rust (rustup), Go
 - **Docker integration**: Docker Desktop with WSL2 backend
@@ -62,9 +63,14 @@ Bootstrap a Windows system for AI-assisted development using WSL2, Ubuntu, Docke
 .\bootstrap.ps1 -SkipDocker
 ```
 
-### Skip Both (WSL-only bootstrap)
+### Skip VS Code (already installed)
 ```powershell
-.\bootstrap.ps1 -SkipWSL -SkipDocker
+.\bootstrap.ps1 -SkipVSCode
+```
+
+### Skip All Windows Installs (WSL-only bootstrap)
+```powershell
+.\bootstrap.ps1 -SkipWSL -SkipDocker -SkipVSCode
 ```
 
 ## What Gets Installed
@@ -72,6 +78,13 @@ Bootstrap a Windows system for AI-assisted development using WSL2, Ubuntu, Docke
 ### Windows Side
 - WSL2 with Ubuntu
 - Docker Desktop with WSL2 integration
+- Visual Studio Code with extensions:
+  - Remote - WSL
+  - GitHub Copilot & Copilot Chat
+  - Continue (AI assistant)
+  - Python, ESLint, Prettier, Rust Analyzer, Go
+  - GitLens, Git Graph
+  - Docker
 - Convenience scripts in `%USERPROFILE%\bin`
 - Symlink to WSL projects: `%USERPROFILE%\wsl-projects`
 

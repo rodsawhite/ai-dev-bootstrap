@@ -14,6 +14,9 @@
 .PARAMETER SkipDocker
     Skip Docker Desktop installation (use if already installed)
 
+.PARAMETER SkipVSCode
+    Skip VS Code installation (use if already installed)
+
 .PARAMETER Force
     Force reinstallation of components
 
@@ -30,6 +33,7 @@
 param(
     [switch]$SkipWSL,
     [switch]$SkipDocker,
+    [switch]$SkipVSCode,
     [switch]$Force
 )
 
@@ -55,6 +59,7 @@ function Request-Elevation {
         $arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
         if ($SkipWSL) { $arguments += " -SkipWSL" }
         if ($SkipDocker) { $arguments += " -SkipDocker" }
+        if ($SkipVSCode) { $arguments += " -SkipVSCode" }
         if ($Force) { $arguments += " -Force" }
 
         Start-Process PowerShell -Verb RunAs -ArgumentList $arguments
@@ -112,15 +117,26 @@ if (-not $SkipDocker) {
     Write-Status "Skipping Docker Desktop installation (--SkipDocker specified)"
 }
 
-# Phase 4: Configure WSL Integration
-Write-Host "`n=== Phase 4: Configuring WSL Integration ===" -ForegroundColor Yellow
+# Phase 4: Install VS Code
+if (-not $SkipVSCode) {
+    Write-Host "`n=== Phase 4: Installing Visual Studio Code ===" -ForegroundColor Yellow
+    & "$ScriptRoot\scripts\windows\install-vscode.ps1" -Force:$Force
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "VS Code installation had warnings. Continuing..."
+    }
+} else {
+    Write-Status "Skipping VS Code installation (--SkipVSCode specified)"
+}
+
+# Phase 5: Configure WSL Integration
+Write-Host "`n=== Phase 5: Configuring WSL Integration ===" -ForegroundColor Yellow
 & "$ScriptRoot\scripts\windows\configure-wsl-integration.ps1"
 if ($LASTEXITCODE -ne 0) {
     Write-Warning "WSL integration configuration had warnings. Continuing..."
 }
 
-# Phase 5: Copy scripts to WSL and execute bootstrap
-Write-Host "`n=== Phase 5: Running WSL Bootstrap ===" -ForegroundColor Yellow
+# Phase 6: Copy scripts to WSL and execute bootstrap
+Write-Host "`n=== Phase 6: Running WSL Bootstrap ===" -ForegroundColor Yellow
 
 # Determine WSL home directory
 $wslUser = wsl -e whoami 2>$null
@@ -178,10 +194,12 @@ Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Cyan
 Write-Host "  1. Open a new WSL terminal: wsl"
 Write-Host "  2. Navigate to your projects: cd ~/projects"
-Write-Host "  3. Start coding with AI agents:"
+Write-Host "  3. Open in VS Code: code ."
+Write-Host "  4. Start coding with AI agents:"
 Write-Host "     - claude          # Claude Code"
 Write-Host "     - gh copilot      # GitHub Copilot CLI"
 Write-Host "     - aider           # Aider"
 Write-Host ""
+Write-Host "VS Code: Open WSL folders with 'code .' from WSL terminal" -ForegroundColor Yellow
 Write-Host "Windows project symlink: $env:USERPROFILE\wsl-projects" -ForegroundColor Yellow
 Write-Host ""
