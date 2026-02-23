@@ -151,7 +151,7 @@ if ($codeCmd) {
     foreach ($ext in $extensions) {
         Write-Status "Installing extension: $ext"
         try {
-            $result = Invoke-Expression "$codeCmd --install-extension $ext --force 2>&1"
+            $result = Invoke-Expression "$codeCmd --install-extension $ext 2>&1"
             if ($result -match "successfully installed") {
                 Write-Success "  Installed: $ext"
             } elseif ($result -match "already installed") {

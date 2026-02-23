@@ -41,13 +41,15 @@ nestedVirtualization=true
 sparseVhd=true
 "@
 
+$wslConfigWritten = $false
 if (Test-Path $wslConfigPath) {
-    Write-Warning "Existing .wslconfig found. Backing up..."
-    Copy-Item $wslConfigPath "$wslConfigPath.backup"
+    Write-Status ".wslconfig already exists — skipping (delete $wslConfigPath to regenerate)"
+    Write-Status "Current settings preserved. Calculated values: ${wslMemory}GB RAM, ${wslSwap}GB swap, $wslProcessors processors"
+} else {
+    $wslConfig | Set-Content $wslConfigPath -Encoding UTF8
+    Write-Success "Created .wslconfig: ${wslMemory}GB RAM, ${wslSwap}GB swap, $wslProcessors processors"
+    $wslConfigWritten = $true
 }
-
-$wslConfig | Set-Content $wslConfigPath -Encoding UTF8
-Write-Success "WSL configured with ${wslMemory}GB RAM, ${wslSwap}GB swap, $wslProcessors processors"
 
 # Get WSL user info
 $wslUser = wsl -e whoami 2>$null
@@ -106,13 +108,18 @@ if (-not (Test-Path $scriptsDir)) {
     New-Item -ItemType Directory -Path $scriptsDir -Force | Out-Null
 }
 
-# WSL launcher script
-$wslLauncherContent = @'
+# WSL launcher script (skip if already exists to preserve any user modifications)
+$devCmdPath = "$scriptsDir\dev.cmd"
+if (-not (Test-Path $devCmdPath)) {
+    $wslLauncherContent = @'
 @echo off
 wsl -d Ubuntu %*
 '@
-$wslLauncherContent | Set-Content "$scriptsDir\dev.cmd"
-Write-Success "Created dev.cmd launcher in $scriptsDir"
+    $wslLauncherContent | Set-Content $devCmdPath
+    Write-Success "Created dev.cmd launcher in $scriptsDir"
+} else {
+    Write-Status "dev.cmd already exists, skipping"
+}
 
 # Add scripts dir to PATH if not already
 $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
@@ -122,12 +129,14 @@ if ($userPath -notlike "*$scriptsDir*") {
     Write-Warning "Restart your terminal to use the 'dev' command"
 }
 
-# Remind about WSL restart for config changes
-Write-Host ""
-Write-Warning "WSL configuration updated. To apply changes, run:"
-Write-Host "  wsl --shutdown" -ForegroundColor Yellow
-Write-Host "  wsl" -ForegroundColor Yellow
-Write-Host ""
+# Remind about WSL restart only if .wslconfig was just written
+if ($wslConfigWritten) {
+    Write-Host ""
+    Write-Warning "WSL configuration updated. To apply changes, run:"
+    Write-Host "  wsl --shutdown" -ForegroundColor Yellow
+    Write-Host "  wsl" -ForegroundColor Yellow
+    Write-Host ""
+}
 
 Write-Success "WSL integration configuration complete!"
 exit 0

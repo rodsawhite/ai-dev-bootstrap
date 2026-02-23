@@ -61,8 +61,7 @@ chmod 700 ~/.config/claude
 if [[ ! -f ~/.config/claude/config.json ]]; then
     cat > ~/.config/claude/config.json << 'EOF'
 {
-  "theme": "dark",
-  "model": "claude-sonnet-4-20250514"
+  "theme": "dark"
 }
 EOF
     print_success "Created Claude Code config template"
@@ -219,9 +218,9 @@ if [[ ! -f ~/.continue/config.json ]]; then
 {
   "models": [
     {
-      "title": "Claude 3.5 Sonnet",
+      "title": "Claude Sonnet",
       "provider": "anthropic",
-      "model": "claude-sonnet-4-20250514",
+      "model": "claude-sonnet",
       "apiKey": ""
     }
   ],
@@ -291,60 +290,11 @@ fi
 # ============================================================
 print_status "Setting up AI agent shell integration..."
 
-# Create AI agents bashrc module
-cat > ~/.bashrc.d/20-ai-agents.sh << 'EOF'
-# AI Coding Agents Configuration
+# Shell aliases are provided via config/.bashrc.d/20-ai-agents.sh,
+# which setup-user-env.sh copies to ~/.bashrc.d/ on first run.
+# No action needed here.
 
-# Claude Code aliases
-alias cc='claude'
-alias claude-chat='claude'
-
-# Gemini CLI aliases
-alias gg='gemini'
-alias gemini-chat='gemini'
-
-# OpenCode aliases
-alias oc='opencode'
-alias opencode-chat='opencode'
-
-# GitHub Copilot aliases
-alias copilot='gh copilot'
-alias suggest='gh copilot suggest'
-alias explain='gh copilot explain'
-
-# Aider aliases
-alias ai='aider'
-alias aider-gpt4='aider --model gpt-4'
-alias aider-claude='aider --model claude-3-opus-20240229'
-alias aider-gemini='aider --model gemini/gemini-1.5-pro-latest'
-
-# Quick AI help
-ai-help() {
-    echo "Available AI Coding Agents:"
-    echo ""
-    echo "  claude / cc       - Claude Code (Anthropic)"
-    echo "  gemini / gg       - Gemini CLI (Google)"
-    echo "  opencode / oc     - OpenCode (Open source)"
-    echo "  gh copilot        - GitHub Copilot CLI"
-    echo "  aider / ai        - Aider (multi-model)"
-    echo "  ollama            - Local LLM runner"
-    echo ""
-    echo "Common commands:"
-    echo "  claude            - Start Claude Code session"
-    echo "  gemini            - Start Gemini CLI session"
-    echo "  opencode          - Start OpenCode session"
-    echo "  suggest <task>    - Get Copilot command suggestion"
-    echo "  explain <cmd>     - Explain a command with Copilot"
-    echo "  aider <files>     - Start Aider with files"
-    echo ""
-    echo "API Keys:"
-    echo "  Edit ~/.config/ai-agents/env to set API keys"
-    echo "  Or run /connect in OpenCode to use OpenCode Zen"
-    echo ""
-}
-EOF
-
-print_success "AI agent shell integration configured"
+print_success "AI agent shell integration configured (via ~/.bashrc.d/20-ai-agents.sh)"
 
 # ============================================================
 # API Key Reminder

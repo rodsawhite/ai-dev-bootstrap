@@ -40,10 +40,7 @@ ghce() {
 # Aider
 # ────────────────────────────────────
 alias ai='aider'
-alias aider-gpt4='aider --model gpt-4'
-alias aider-claude='aider --model claude-3-opus-20240229'
-alias aider-sonnet='aider --model claude-sonnet-4-20250514'
-alias aider-gemini='aider --model gemini/gemini-1.5-pro-latest'
+# Use aider's own model selection (aider --model <name>) or set via ~/.aider.conf.yml
 
 # ────────────────────────────────────
 # Ollama (Local LLM)
@@ -53,7 +50,7 @@ alias ollama-list='ollama list'
 
 # Quick chat with local model
 chat() {
-    local model="${1:-llama2}"
+    local model="${1:-llama3.2}"
     ollama run "$model"
 }
 
@@ -170,13 +167,12 @@ ai-help() {
     echo "  Aider:"
     echo "    aider / ai      Start Aider session"
     echo "    aider <files>   Start with specific files"
-    echo "    aider-sonnet    Use Claude Sonnet model"
-    echo "    aider-gemini    Use Gemini Pro model"
-    echo "    aider-gpt4      Use GPT-4 model"
+    echo "    aider --model <name>  Use a specific model"
+    echo "    (set default model in ~/.aider.conf.yml)"
     echo ""
     echo "  Ollama:"
     echo "    ollama run <model>  Run a local model"
-    echo "    chat [model]        Quick chat (default: llama2)"
+    echo "    chat [model]        Quick chat (default: llama3.2)"
     echo ""
     echo "  Utilities:"
     echo "    ai-status       Check AI tools status"

@@ -134,12 +134,16 @@ export NVM_DIR="$HOME/.nvm"
 
 if [[ ! -d "$NVM_DIR" ]]; then
     print_status "Installing nvm..."
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    NVM_VERSION=$(curl -s https://api.github.com/repos/nvm-sh/nvm/releases/latest \
+        | grep -o '"tag_name": "[^"]*' | cut -d'"' -f4)
+    NVM_VERSION="${NVM_VERSION:-v0.40.0}"  # fallback if API rate-limited or unavailable
+    print_status "Installing nvm ${NVM_VERSION}..."
+    curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" | bash
 
     # Load nvm for current session
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-    print_success "nvm installed"
+    print_success "nvm ${NVM_VERSION} installed"
 else
     print_status "nvm already installed"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -200,13 +204,19 @@ fi
 
 # Install Python
 if command -v pyenv &> /dev/null; then
-    PYTHON_VERSION="3.12.1"
+    # Detect latest stable 3.12.x; fall back to latest 3.11.x if unavailable
+    PYTHON_VERSION=$(pyenv install --list 2>/dev/null \
+        | grep -E '^\s+3\.12\.[0-9]+$' | tail -1 | tr -d ' ')
+    PYTHON_VERSION="${PYTHON_VERSION:-3.12}"  # fallback if pyenv list unavailable
+    PYTHON_FALLBACK=$(pyenv install --list 2>/dev/null \
+        | grep -E '^\s+3\.11\.[0-9]+$' | tail -1 | tr -d ' ')
+    PYTHON_FALLBACK="${PYTHON_FALLBACK:-3.11}"
 
     if ! pyenv versions | grep -q "$PYTHON_VERSION"; then
         print_status "Installing Python $PYTHON_VERSION (this may take a while)..."
         pyenv install "$PYTHON_VERSION" || {
-            print_warning "Python $PYTHON_VERSION installation failed, trying 3.11"
-            PYTHON_VERSION="3.11.7"
+            print_warning "Python $PYTHON_VERSION installation failed, trying $PYTHON_FALLBACK"
+            PYTHON_VERSION="$PYTHON_FALLBACK"
             pyenv install "$PYTHON_VERSION" || print_warning "Python installation failed"
         }
     fi
@@ -221,7 +231,7 @@ if command -v pyenv &> /dev/null; then
     fi
 else
     print_warning "pyenv not available in current session"
-    print_status "Restart your shell and run: pyenv install 3.12.1"
+    print_status "Restart your shell and run: pyenv install 3.12"
 fi
 
 # Rust via rustup
@@ -251,17 +261,26 @@ fi
 # Go installation
 print_status "Setting up Go..."
 
-GO_VERSION="1.22.0"
-
 if ! command -v go &> /dev/null; then
-    print_status "Installing Go $GO_VERSION..."
+    # Fetch current stable version from Go's official endpoint
+    GO_VERSION=$(curl -sL "https://go.dev/VERSION?m=text" | head -1 | sed 's/^go//')
+    GO_VERSION="${GO_VERSION:-1.22.0}"  # fallback if endpoint unavailable
+    print_status "Installing Go ${GO_VERSION}..."
 
-    curl -LO "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" 2>/dev/null
-    sudo rm -rf /usr/local/go
-    sudo tar -C /usr/local -xzf "go${GO_VERSION}.linux-amd64.tar.gz"
-    rm -f "go${GO_VERSION}.linux-amd64.tar.gz"
+    GOTAR="go${GO_VERSION}.linux-amd64.tar.gz"
+    curl -LO "https://go.dev/dl/${GOTAR}" 2>/dev/null
 
-    print_success "Go installed"
+    # Validate download before making destructive changes
+    if [[ -f "$GOTAR" ]] && [[ $(stat -c%s "$GOTAR" 2>/dev/null || echo 0) -gt 1000000 ]]; then
+        sudo rm -rf /usr/local/go
+        sudo tar -C /usr/local -xzf "$GOTAR"
+        rm -f "$GOTAR"
+        print_success "Go ${GO_VERSION} installed"
+    else
+        rm -f "$GOTAR"
+        print_warning "Go download failed or incomplete — skipping Go installation"
+        print_status "Retry manually: https://go.dev/dl/"
+    fi
 else
     print_status "Go already installed: $(go version)"
 fi
@@ -285,6 +304,6 @@ echo "  - CLI utilities: ripgrep, fd, fzf, bat, eza"
 echo "  - Node.js: via nvm (LTS)"
 echo "  - Python: via pyenv (3.12.x)"
 echo "  - Rust: via rustup"
-echo "  - Go: $GO_VERSION"
+echo "  - Go: latest stable (fetched at install time)"
 echo ""
 echo "Restart your shell or run: source ~/.bashrc"

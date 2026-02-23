@@ -85,10 +85,18 @@ print_status "Installing shell configuration..."
 BASHRC_D="$HOME/.bashrc.d"
 mkdir -p "$BASHRC_D"
 
-# Copy bashrc modules if they exist
+# Copy bashrc modules if they exist (skip files that already exist to preserve user customisations)
 if [[ -d "$CONFIG_DIR/.bashrc.d" ]]; then
-    cp -r "$CONFIG_DIR/.bashrc.d/"* "$BASHRC_D/" 2>/dev/null || true
-    print_success "Copied bashrc modules to $BASHRC_D"
+    for src_file in "$CONFIG_DIR/.bashrc.d/"*.sh; do
+        [[ -f "$src_file" ]] || continue
+        dest_file="$BASHRC_D/$(basename "$src_file")"
+        if [[ ! -f "$dest_file" ]]; then
+            cp "$src_file" "$dest_file"
+            print_success "Installed bashrc module: $(basename "$src_file")"
+        else
+            print_status "Skipping existing bashrc module: $(basename "$src_file")"
+        fi
+    done
 fi
 
 # Add bashrc.d sourcing to .bashrc if not already present
@@ -124,8 +132,8 @@ EOF
     print_success "Added environment variables to ~/.bashrc"
 fi
 
-# Create .bash_profile to source .bashrc for login shells
-if [[ ! -f ~/.bash_profile ]] || ! grep -q "bashrc" ~/.bash_profile 2>/dev/null; then
+# Create .bash_profile to source .bashrc for login shells (only if absent)
+if [[ ! -f ~/.bash_profile ]]; then
     cat > ~/.bash_profile << 'EOF'
 # Source .bashrc for login shells
 if [[ -f ~/.bashrc ]]; then
@@ -133,6 +141,8 @@ if [[ -f ~/.bashrc ]]; then
 fi
 EOF
     print_success "Created ~/.bash_profile"
+else
+    print_status "~/.bash_profile already exists, skipping"
 fi
 
 # Set up SSH config directory with template
@@ -192,12 +202,15 @@ EOF
     print_success "Added AI agents env sourcing to ~/.bashrc"
 fi
 
-# Copy Docker compose template if available
+# Copy Docker compose template if available (skip if already exists to preserve user modifications)
 print_status "Setting up Docker compose template..."
 
-if [[ -f "$CONFIG_DIR/docker/compose-template.yml" ]]; then
+if [[ -f "$CONFIG_DIR/docker/compose-template.yml" ]] && \
+   [[ ! -f ~/docker-projects/"$COMPOSE_PROJECT"/docker-compose.yml ]]; then
     cp "$CONFIG_DIR/docker/compose-template.yml" ~/docker-projects/"$COMPOSE_PROJECT"/docker-compose.yml
     print_success "Copied Docker compose template"
+elif [[ -f ~/docker-projects/"$COMPOSE_PROJECT"/docker-compose.yml ]]; then
+    print_status "docker-compose.yml already exists, skipping (preserving user modifications)"
 fi
 
 print_success "User environment setup complete!"
