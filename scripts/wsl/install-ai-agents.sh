@@ -123,6 +123,41 @@ mkdir -p ~/.config/opencode
 chmod 700 ~/.config/opencode
 
 # ============================================================
+# Codex CLI (OpenAI)
+# ============================================================
+print_status "Installing Codex CLI..."
+
+if command -v node &> /dev/null; then
+    if command -v codex &> /dev/null; then
+        print_success "Codex CLI already installed: $(codex --version 2>/dev/null || echo 'installed')"
+    else
+        npm install -g @openai/codex 2>/dev/null || {
+            print_warning "Codex CLI installation failed via npm"
+            print_status "You can try installing later with: npm install -g @openai/codex"
+        }
+
+        if command -v codex &> /dev/null; then
+            print_success "Codex CLI installed"
+        fi
+    fi
+else
+    print_warning "Node.js not available, skipping Codex CLI"
+    print_status "After installing Node.js, run: npm install -g @openai/codex"
+fi
+
+# Create Codex config directory
+mkdir -p ~/.config/codex
+chmod 700 ~/.config/codex
+
+# Prompt user about ChatGPT account auth option
+echo ""
+print_status "Codex CLI authentication options:"
+echo "  Option 1 (ChatGPT plan): run 'codex' and select 'Sign in with ChatGPT'"
+echo "             Supports Plus, Pro, Team, Edu and Enterprise plans"
+echo "  Option 2 (API key):      set OPENAI_API_KEY in ~/.config/ai-agents/env"
+echo ""
+
+# ============================================================
 # GitHub Copilot CLI
 # ============================================================
 print_status "Installing GitHub Copilot CLI..."
@@ -251,9 +286,11 @@ EOF
 fi
 
 # ============================================================
-# OpenAI CLI (optional, for GPT models)
+# OpenAI Python library (soft dependency for Aider/OpenCode)
 # ============================================================
-print_status "Installing OpenAI CLI..."
+print_status "Installing OpenAI Python library..."
+# Note: Codex CLI (npm) is the primary OpenAI terminal agent.
+# This installs the openai pip package used by Aider and OpenCode.
 
 if command -v python &> /dev/null || command -v python3 &> /dev/null; then
     PYTHON_CMD="python"
@@ -261,9 +298,9 @@ if command -v python &> /dev/null || command -v python3 &> /dev/null; then
 
     if ! $PYTHON_CMD -c "import openai" 2>/dev/null; then
         $PYTHON_CMD -m pip install --user openai 2>/dev/null || true
-        print_success "OpenAI Python package installed"
+        print_success "OpenAI Python library installed"
     else
-        print_status "OpenAI Python package already installed"
+        print_status "OpenAI Python library already installed"
     fi
 fi
 
@@ -308,7 +345,7 @@ echo ""
 echo "Required keys:"
 echo "  ANTHROPIC_API_KEY  - For Claude Code"
 echo "  GEMINI_API_KEY     - For Gemini CLI (or GOOGLE_API_KEY)"
-echo "  OPENAI_API_KEY     - For Aider with GPT models, OpenCode"
+echo "  OPENAI_API_KEY     - For Codex CLI (API key mode), Aider with GPT models, OpenCode"
 echo ""
 echo "GitHub Copilot uses your gh CLI authentication."
 echo "OpenCode can use /connect command in TUI for OpenCode Zen auth."
@@ -323,6 +360,7 @@ echo "Installed agents:"
 command -v claude &> /dev/null && echo "  ✓ Claude Code" || echo "  ○ Claude Code (needs Node.js)"
 command -v gemini &> /dev/null && echo "  ✓ Gemini CLI" || echo "  ○ Gemini CLI (needs Node.js)"
 command -v opencode &> /dev/null && echo "  ✓ OpenCode" || echo "  ○ OpenCode (needs Node.js)"
+command -v codex &> /dev/null && echo "  ✓ Codex CLI" || echo "  ○ Codex CLI (needs Node.js)"
 gh extension list 2>/dev/null | grep -q "copilot" && echo "  ✓ GitHub Copilot CLI" || echo "  ○ GitHub Copilot CLI (needs gh auth)"
 command -v aider &> /dev/null && echo "  ✓ Aider" || echo "  ○ Aider (needs Python)"
 command -v ollama &> /dev/null && echo "  ✓ Ollama" || echo "  ○ Ollama (optional)"

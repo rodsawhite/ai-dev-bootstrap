@@ -164,6 +164,7 @@ print_status "Setting up AI agents configuration..."
 mkdir -p ~/.config/claude
 mkdir -p ~/.config/gemini
 mkdir -p ~/.config/aider
+mkdir -p ~/.config/codex
 mkdir -p ~/.continue
 
 # Create placeholder for API keys (user must fill in)
@@ -179,7 +180,9 @@ if [[ ! -f ~/.config/ai-agents/env ]]; then
 # export GEMINI_API_KEY="your-key-here"
 # export GOOGLE_API_KEY="your-key-here"  # Alternative
 
-# OpenAI API Key (for Aider with GPT models)
+# OpenAI API Key (for Codex CLI in API key mode, Aider with GPT models, OpenCode)
+# Codex CLI can also authenticate via ChatGPT account (no API key needed).
+# Run 'codex' after install and select 'Sign in with ChatGPT'.
 # export OPENAI_API_KEY="your-key-here"
 
 # Other API keys as needed

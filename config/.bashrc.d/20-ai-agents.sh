@@ -20,6 +20,12 @@ alias oc='opencode'
 alias opencode-chat='opencode'
 
 # ────────────────────────────────────
+# Codex CLI (OpenAI)
+# ────────────────────────────────────
+alias cx='codex'
+alias codex-chat='codex'
+
+# ────────────────────────────────────
 # GitHub Copilot CLI
 # ────────────────────────────────────
 alias copilot='gh copilot'
@@ -103,6 +109,19 @@ ai-status() {
     fi
     echo ""
 
+    # Codex CLI
+    if command -v codex &> /dev/null; then
+        echo "✓ Codex CLI: installed"
+        if [[ -n "$OPENAI_API_KEY" ]]; then
+            echo "  Auth: API key configured"
+        else
+            echo "  Auth: NOT SET (run 'codex' to sign in with ChatGPT, or set OPENAI_API_KEY)"
+        fi
+    else
+        echo "○ Codex CLI: not installed"
+    fi
+    echo ""
+
     # GitHub Copilot
     if gh extension list 2>/dev/null | grep -q "copilot"; then
         echo "✓ GitHub Copilot CLI: installed"
@@ -158,6 +177,9 @@ ai-help() {
     echo ""
     echo "  OpenCode:"
     echo "    opencode / oc   Start OpenCode session"
+    echo ""
+    echo "  Codex CLI:"
+    echo "    codex / cx      Start Codex CLI session"
     echo ""
     echo "  GitHub Copilot:"
     echo "    suggest <task>  Get command suggestion"
