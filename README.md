@@ -4,7 +4,7 @@ Bootstrap a Windows system for AI-assisted development using WSL2, Ubuntu, Docke
 
 ## Features
 
-- **Multi-agent support**: Claude Code, Gemini CLI, OpenCode, GitHub Copilot CLI, Aider, and Ollama
+- **Multi-agent support**: Claude Code, Gemini CLI, OpenCode, Codex CLI, GitHub Copilot CLI, Aider, and Ollama
 - **VS Code**: With WSL integration and AI extensions pre-configured
 - **Modern CLI tools**: ripgrep, fd, fzf, bat, eza
 - **Language runtimes**: Node.js (nvm), Python (pyenv), Rust (rustup), Go
@@ -111,6 +111,7 @@ Bootstrap a Windows system for AI-assisted development using WSL2, Ubuntu, Docke
 - **Claude Code** - Anthropic's CLI coding assistant
 - **Gemini CLI** - Google's CLI coding assistant
 - **OpenCode** - Open source AI coding agent
+- **Codex CLI** - OpenAI's CLI coding agent
 - **GitHub Copilot CLI** - Command suggestions and explanations
 - **Aider** - AI pair programming in terminal
 - **Ollama** - Local LLM runner (optional)
@@ -130,7 +131,9 @@ After installation, your WSL environment will have:
 │   ├── claude/         # Claude Code config
 │   ├── gemini/         # Gemini CLI config
 │   ├── opencode/       # OpenCode config
+│   ├── codex/          # Codex CLI config
 │   └── aider/          # Aider config
+├── .continue/          # Continue extension config
 ├── .bashrc.d/          # Modular bash config
 │   ├── 00-path.sh
 │   ├── 10-aliases.sh
@@ -153,8 +156,15 @@ export ANTHROPIC_API_KEY="sk-ant-..."
 # Google Gemini API Key (for Gemini CLI)
 export GEMINI_API_KEY="your-gemini-key..."
 
-# OpenAI API Key (for Aider with GPT models)
+# OpenAI API Key (for Codex CLI API mode, OpenCode, Aider with GPT models)
 export OPENAI_API_KEY="sk-..."
+```
+
+Codex CLI can also authenticate with your ChatGPT account:
+
+```bash
+codex
+# Then choose "Sign in with ChatGPT"
 ```
 
 ### GitHub Authentication
@@ -192,6 +202,9 @@ gg                      # Alias for gemini
 # OpenCode
 opencode                # Start interactive session
 oc                      # Alias for opencode
+
+# Codex CLI
+codex                   # Start interactive session
 
 # GitHub Copilot
 gh copilot suggest "create a python script to process CSV"
@@ -334,6 +347,7 @@ This will show:
 npm uninstall -g @anthropic-ai/claude-code
 npm uninstall -g @google/gemini-cli
 npm uninstall -g opencode-ai
+npm uninstall -g @openai/codex
 gh extension remove github/gh-copilot
 pip uninstall aider-chat
 ```
