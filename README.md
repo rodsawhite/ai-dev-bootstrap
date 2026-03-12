@@ -73,6 +73,12 @@ Bootstrap a Windows system for AI-assisted development using WSL2, Ubuntu, Docke
 .\bootstrap.ps1 -SkipWSL -SkipDocker -SkipVSCode
 ```
 
+### Non-Interactive Mode (CI/automation)
+```powershell
+.\bootstrap.ps1 -NonInteractive
+```
+Skips all interactive prompts (GitHub authentication, SSH key registration). Post-install instructions are printed instead so you can complete those steps manually.
+
 ## What Gets Installed
 
 ### Windows Side

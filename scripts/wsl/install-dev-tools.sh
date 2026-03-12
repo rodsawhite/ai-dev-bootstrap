@@ -91,9 +91,13 @@ fi
 # fzf - fuzzy finder
 if ! command -v fzf &> /dev/null; then
     print_status "Installing fzf..."
-    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf 2>/dev/null || true
-    ~/.fzf/install --key-bindings --completion --no-update-rc --no-bash --no-zsh --no-fish
-    print_success "fzf installed"
+    rm -rf ~/.fzf  # Remove any partial clone from a prior failed attempt
+    if git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf 2>/dev/null; then
+        ~/.fzf/install --key-bindings --completion --no-update-rc --no-bash --no-zsh --no-fish
+        print_success "fzf installed"
+    else
+        print_warning "fzf clone failed (network issue?) — skipping, continuing with remaining installs"
+    fi
 else
     print_status "fzf already installed"
 fi

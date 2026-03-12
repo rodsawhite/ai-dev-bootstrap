@@ -23,6 +23,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BOOTSTRAP_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
 CONFIG_DIR="$BOOTSTRAP_DIR/config"
 
+# Parse flags
+NON_INTERACTIVE=false
+for arg in "$@"; do
+    case "$arg" in
+        --non-interactive) NON_INTERACTIVE=true ;;
+    esac
+done
+
 echo ""
 echo -e "${CYAN}╔═══════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}║         WSL AI Development Environment Setup                  ║${NC}"
@@ -54,7 +62,9 @@ fi
 echo ""
 echo -e "${YELLOW}=== Phase 2: GitHub Tools Setup ===${NC}"
 if [[ -x "$SCRIPT_DIR/install-github.sh" ]]; then
-    bash "$SCRIPT_DIR/install-github.sh"
+    GITHUB_FLAGS=""
+    [[ "$NON_INTERACTIVE" == "true" ]] && GITHUB_FLAGS="--non-interactive"
+    bash "$SCRIPT_DIR/install-github.sh" $GITHUB_FLAGS
 else
     print_error "install-github.sh not found or not executable"
     exit 1

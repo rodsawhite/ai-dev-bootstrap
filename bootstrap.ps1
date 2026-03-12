@@ -20,6 +20,9 @@
 .PARAMETER Force
     Force reinstallation of components
 
+.PARAMETER NonInteractive
+    Skip all interactive prompts (auth, SSH key registration). Use for automated/unattended runs.
+
 .EXAMPLE
     .\bootstrap.ps1
     Run full bootstrap process
@@ -27,6 +30,10 @@
 .EXAMPLE
     .\bootstrap.ps1 -SkipWSL -SkipDocker
     Only run WSL bootstrap scripts (WSL and Docker already installed)
+
+.EXAMPLE
+    .\bootstrap.ps1 -NonInteractive
+    Run fully unattended — no prompts, post-install instructions printed instead
 #>
 
 [CmdletBinding()]
@@ -34,7 +41,8 @@ param(
     [switch]$SkipWSL,
     [switch]$SkipDocker,
     [switch]$SkipVSCode,
-    [switch]$Force
+    [switch]$Force,
+    [switch]$NonInteractive
 )
 
 $ErrorActionPreference = "Stop"
@@ -61,6 +69,7 @@ function Request-Elevation {
         if ($SkipDocker) { $arguments += " -SkipDocker" }
         if ($SkipVSCode) { $arguments += " -SkipVSCode" }
         if ($Force) { $arguments += " -Force" }
+        if ($NonInteractive) { $arguments += " -NonInteractive" }
 
         Start-Process PowerShell -Verb RunAs -ArgumentList $arguments
         exit
@@ -173,7 +182,9 @@ wsl -e chmod +x "$wslBootstrapDir/scripts/wsl/"*.sh
 
 # Execute main bootstrap script in WSL
 Write-Status "Executing WSL bootstrap script..."
-wsl -e bash -c "cd '$wslBootstrapDir' && ./scripts/wsl/bootstrap.sh"
+$bootstrapFlags = ""
+if ($NonInteractive) { $bootstrapFlags += " --non-interactive" }
+wsl -e bash -c "cd '$wslBootstrapDir' && ./scripts/wsl/bootstrap.sh$bootstrapFlags"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Error "WSL bootstrap failed."

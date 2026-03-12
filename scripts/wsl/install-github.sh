@@ -18,6 +18,14 @@ print_success() { echo -e "${GREEN}[+]${NC} $1"; }
 print_warning() { echo -e "${YELLOW}[!]${NC} $1"; }
 print_error() { echo -e "${RED}[-]${NC} $1"; }
 
+# Parse flags
+NON_INTERACTIVE=false
+for arg in "$@"; do
+    case "$arg" in
+        --non-interactive) NON_INTERACTIVE=true ;;
+    esac
+done
+
 # Install GitHub CLI
 print_status "Installing GitHub CLI..."
 
@@ -128,27 +136,28 @@ else
     echo "  3. Run: gh auth login --with-token < your-token-file"
     echo ""
 
-    # Ask if user wants to authenticate now
-    read -p "Would you like to authenticate with GitHub now? (y/N) " -n 1 -r
-    echo ""
-
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        print_status "Starting GitHub authentication..."
-
-        # Try web authentication
-        gh auth login --web --git-protocol https
-
-        if gh auth status &>/dev/null; then
-            print_success "GitHub authentication successful!"
-
-            # Configure git to use gh for credentials
-            gh auth setup-git
-            print_success "Git configured to use GitHub CLI for authentication"
-        else
-            print_error "GitHub authentication failed"
-        fi
+    if [[ "$NON_INTERACTIVE" == "true" ]]; then
+        print_warning "Non-interactive mode: skipping GitHub authentication"
+        print_status "Run manually after bootstrap: gh auth login --web --git-protocol https"
     else
-        print_warning "Skipping GitHub authentication (run 'gh auth login' later)"
+        read -p "Would you like to authenticate with GitHub now? (y/N) " -n 1 -r
+        echo ""
+
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            print_status "Starting GitHub authentication..."
+
+            gh auth login --web --git-protocol https
+
+            if gh auth status &>/dev/null; then
+                print_success "GitHub authentication successful!"
+                gh auth setup-git
+                print_success "Git configured to use GitHub CLI for authentication"
+            else
+                print_error "GitHub authentication failed"
+            fi
+        else
+            print_warning "Skipping GitHub authentication (run 'gh auth login' later)"
+        fi
     fi
 fi
 
@@ -165,21 +174,26 @@ if gh auth status &>/dev/null; then
     else
         print_status "Adding SSH key to GitHub..."
 
-        read -p "Would you like to add your SSH key to GitHub? (y/N) " -n 1 -r
-        echo ""
-
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            if gh ssh-key add "$SSH_KEY.pub" --title "$KEY_TITLE"; then
-                print_success "SSH key added to GitHub as '$KEY_TITLE'"
-            else
-                print_error "Failed to add SSH key to GitHub"
-                echo "You can add it manually at: https://github.com/settings/keys"
-            fi
+        if [[ "$NON_INTERACTIVE" == "true" ]]; then
+            print_warning "Non-interactive mode: skipping SSH key registration"
+            print_status "Run manually after bootstrap: gh ssh-key add ~/.ssh/id_ed25519.pub --title \"$(hostname)-wsl\""
         else
-            print_warning "Skipping SSH key registration"
-            echo "Add your key manually at: https://github.com/settings/keys"
-            echo "Public key:"
-            cat "$SSH_KEY.pub"
+            read -p "Would you like to add your SSH key to GitHub? (y/N) " -n 1 -r
+            echo ""
+
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                if gh ssh-key add "$SSH_KEY.pub" --title "$KEY_TITLE"; then
+                    print_success "SSH key added to GitHub as '$KEY_TITLE'"
+                else
+                    print_error "Failed to add SSH key to GitHub"
+                    echo "You can add it manually at: https://github.com/settings/keys"
+                fi
+            else
+                print_warning "Skipping SSH key registration"
+                echo "Add your key manually at: https://github.com/settings/keys"
+                echo "Public key:"
+                cat "$SSH_KEY.pub"
+            fi
         fi
     fi
 else

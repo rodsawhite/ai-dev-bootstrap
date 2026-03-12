@@ -22,6 +22,22 @@ CONFIG_DIR="${1:-$(dirname "$(dirname "$(cd "$(dirname "${BASH_SOURCE[0]}")" && 
 
 print_status "Setting up user environment..."
 
+# Validate CONFIG_DIR exists and contains expected structure
+if [[ ! -d "$CONFIG_DIR" ]]; then
+    print_error "CONFIG_DIR not found: $CONFIG_DIR"
+    print_error "Pass the correct config path as the first argument, e.g.:"
+    print_error "  bash setup-user-env.sh /path/to/repo/config"
+    exit 1
+fi
+
+if [[ ! -d "$CONFIG_DIR/.bashrc.d" ]]; then
+    print_error "Expected directory missing: $CONFIG_DIR/.bashrc.d"
+    print_error "The config directory appears incomplete. Re-clone the repository and try again."
+    exit 1
+fi
+
+print_success "Config directory validated: $CONFIG_DIR"
+
 # Create directory structure
 print_status "Creating directory structure..."
 

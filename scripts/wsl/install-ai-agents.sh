@@ -18,7 +18,7 @@ print_success() { echo -e "${GREEN}[+]${NC} $1"; }
 print_warning() { echo -e "${YELLOW}[!]${NC} $1"; }
 print_error() { echo -e "${RED}[-]${NC} $1"; }
 
-# Source environment to get nvm and pyenv
+# Source environment to get nvm, pyenv, and local bin
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
@@ -27,6 +27,9 @@ export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)" 2>/dev/null || true
 
 source "$HOME/.cargo/env" 2>/dev/null || true
+
+# Ensure ~/.local/bin is on PATH so pip --user installs (e.g. aider) are found immediately
+export PATH="$HOME/.local/bin:$PATH"
 
 print_status "Installing AI Coding Agents..."
 

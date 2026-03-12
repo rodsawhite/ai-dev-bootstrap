@@ -25,6 +25,7 @@ echo ""
 PASSED=0
 WARNED=0
 FAILED=0
+CRITICAL_FAILED=0
 
 check_pass() {
     print_success "$1"
@@ -39,6 +40,13 @@ check_warn() {
 check_fail() {
     print_fail "$1"
     ((FAILED++))
+}
+
+# Critical failures are tools without which development is impossible (git, curl)
+check_critical() {
+    print_fail "[CRITICAL] $1"
+    ((FAILED++))
+    ((CRITICAL_FAILED++))
 }
 
 # Source environment (silently - tools may not be installed yet)
@@ -60,14 +68,14 @@ echo "────────────────────────�
 if command -v git &> /dev/null; then
     check_pass "Git: $(git --version | cut -d' ' -f3)"
 else
-    check_fail "Git not installed"
+    check_critical "Git not installed (run: sudo apt-get install -y git)"
 fi
 
 # Curl
 if command -v curl &> /dev/null; then
     check_pass "curl: $(curl --version | head -1 | cut -d' ' -f2)"
 else
-    check_fail "curl not installed"
+    check_critical "curl not installed (run: sudo apt-get install -y curl)"
 fi
 
 # jq
@@ -179,11 +187,23 @@ if command -v docker &> /dev/null; then
         check_pass "Docker CLI: installed"
     fi
 
-    # Docker connectivity
+    # Docker connectivity — distinguish between three failure states
     if docker ps &>/dev/null; then
         check_pass "Docker daemon: connected"
     else
-        check_warn "Docker daemon: not accessible (start Docker Desktop)"
+        # Check if Docker Desktop is running on Windows
+        DOCKER_DESKTOP_RUNNING=$(cmd.exe /c "tasklist 2>nul" 2>/dev/null | grep -i "Docker Desktop" || true)
+        if [[ -z "$DOCKER_DESKTOP_RUNNING" ]]; then
+            # Check if Docker Desktop is installed by looking for its executable directly
+            DOCKER_DESKTOP_INSTALLED=$(cmd.exe /c "if exist \"C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe\" echo found" 2>/dev/null || true)
+            if [[ -z "$DOCKER_DESKTOP_INSTALLED" ]]; then
+                check_warn "Docker daemon: Docker Desktop not installed on Windows (re-run bootstrap.ps1)"
+            else
+                check_warn "Docker daemon: Docker Desktop is not running — start it from the Windows taskbar"
+            fi
+        else
+            check_warn "Docker daemon: Docker Desktop is running but WSL integration is disabled — enable it in Docker Desktop > Settings > Resources > WSL Integration"
+        fi
     fi
 else
     check_fail "Docker CLI not installed"
@@ -219,7 +239,7 @@ if command -v gh &> /dev/null; then
         check_warn "GitHub auth: not authenticated (run: gh auth login)"
     fi
 else
-    check_fail "GitHub CLI not installed"
+    check_warn "GitHub CLI: not installed (run: bash install-github.sh)"
 fi
 
 # SSH key
@@ -333,14 +353,17 @@ echo "════════════════════════�
 echo -e "Results: ${GREEN}$PASSED passed${NC}, ${YELLOW}$WARNED warnings${NC}, ${RED}$FAILED failed${NC}"
 echo ""
 
-if [[ $FAILED -eq 0 ]]; then
-    if [[ $WARNED -eq 0 ]]; then
-        echo -e "${GREEN}All checks passed! Your environment is fully configured.${NC}"
-    else
-        echo -e "${YELLOW}Most checks passed. Review warnings above for optional improvements.${NC}"
-    fi
+if [[ $CRITICAL_FAILED -gt 0 ]]; then
+    echo -e "${RED}Critical components are missing. Your environment will not function correctly.${NC}"
+    echo -e "${RED}Review the [CRITICAL] failures above and re-run the bootstrap.${NC}"
+    exit 1
+elif [[ $FAILED -gt 0 ]]; then
+    echo -e "${YELLOW}Some components are missing but core tools are working. Review failures above.${NC}"
+    exit 0
+elif [[ $WARNED -gt 0 ]]; then
+    echo -e "${YELLOW}Most checks passed. Review warnings above for optional improvements.${NC}"
     exit 0
 else
-    echo -e "${RED}Some required components are missing. Review failures above.${NC}"
-    exit 1
+    echo -e "${GREEN}All checks passed! Your environment is fully configured.${NC}"
+    exit 0
 fi
